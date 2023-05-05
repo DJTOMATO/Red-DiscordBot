@@ -422,6 +422,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         else:
             owner = app_info.owner
         custom_info = await self.bot._config.custom_info()
+        infoimage = await self.bot._config.infoimage()
 
         pypi_version, py_version_req = await fetch_latest_red_version_info()
         outdated = pypi_version and pypi_version > red_version_info
