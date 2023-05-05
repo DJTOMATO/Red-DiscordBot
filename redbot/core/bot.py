@@ -133,6 +133,7 @@ class Red(
             help__use_tick=False,
             help__react_timeout=30,
             description="Red V3",
+            infoimage="",
             invite_public=False,
             invite_perm=0,
             invite_commands_scope=False,
