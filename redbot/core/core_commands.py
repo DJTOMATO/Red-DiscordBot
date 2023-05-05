@@ -448,6 +448,8 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             embed.add_field(name="Python", value=python_version)
             embed.add_field(name="discord.py", value=dpy_version)
             embed.add_field(name=_("Red version"), value=red_version)
+            if infoimage:
+                embed.set_image(url=infoimage)
             if outdated in (True, None):
                 if outdated is True:
                     outdated_value = _("Yes, {version} is available.").format(
@@ -2840,6 +2842,42 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         else:
             await ctx.bot._config.description.set(description)
             ctx.bot.description = description
+            await ctx.tick()
+            
+    @commands.is_owner()
+    @_set_bot.command(name="infoimage")
+    async def _set_bot_image(self, ctx: commands.Context, *, infoimage: str = ""):
+        """
+        Sets the bot's info image.
+
+        Use without a url to reset.
+        This is shown in the [p]info command..
+
+        The maximum description length is 250 characters to ensure it displays properly.
+
+        The default is "None".
+
+        **Examples:**
+            - `[p]set bot infoimage` - Resets the image for info command.
+            - `[p]set bot infoimage https://camo.githubusercontent.com/aaf85e91d5f38462eb2128bf3c0c807d7129f745b88f808d4108364e6156e7f5/68747470733a2f2f696d6775722e636f6d2f705931575546582e706e67`
+
+        **Arguments:**
+            - `[url]` - The image to use for this bot. Leave blank to reset to the default.
+        """
+        if not infoimage:
+            await ctx.bot._config.infoimage.clear()
+            ctx.bot.infoimage = ""
+            await ctx.send(_("Info image reset."))
+        elif len(infoimage) > 250:  # While the limit is 256, we bold it adding characters.
+            await ctx.send(
+                _(
+                    "This url is too long to properly display. "
+                    "Please try again with below 250 characters."
+                )
+            )
+        else:
+            await ctx.bot._config.infoimage.set(infoimage)
+            ctx.bot.infoimage = infoimage
             await ctx.tick()
 
     @_set_bot.group(name="avatar", invoke_without_command=True)
