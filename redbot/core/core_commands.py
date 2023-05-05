@@ -2851,15 +2851,15 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         Sets the bot's info image.
 
         Use without a url to reset.
-        This is shown in the [p]info command..
+        This is shown in the [p]info command only if embeds are enabled.
 
-        The maximum description length is 250 characters to ensure it displays properly.
+        The maximum url length is 80 characters.
 
         The default is "None".
 
         **Examples:**
             - `[p]set bot infoimage` - Resets the image for info command.
-            - `[p]set bot infoimage https://camo.githubusercontent.com/aaf85e91d5f38462eb2128bf3c0c807d7129f745b88f808d4108364e6156e7f5/68747470733a2f2f696d6775722e636f6d2f705931575546582e706e67`
+            - `[p]set bot infoimage https://i.imgur.com/w3HmhVs.png`
 
         **Arguments:**
             - `[url]` - The image to use for this bot. Leave blank to reset to the default.
@@ -2868,11 +2868,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             await ctx.bot._config.infoimage.clear()
             ctx.bot.infoimage = ""
             await ctx.send(_("Info image reset."))
-        elif len(infoimage) > 250:  # While the limit is 256, we bold it adding characters.
+        elif len(infoimage) > 80:  # If the length is too long, reject it.
             await ctx.send(
                 _(
-                    "This url is too long to properly display. "
-                    "Please try again with below 250 characters."
+                    "This url is too long. "
+                    "Please try again with below 80 characters."
                 )
             )
         else:
