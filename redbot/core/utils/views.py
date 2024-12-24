@@ -66,9 +66,10 @@ class _StopButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         self.view.stop()
         if interaction.message.flags.ephemeral:
-            await interaction.response.edit_message(view=None)
-            return
-        await interaction.message.delete()
+            await interaction.response.defer(thinking=False)
+            await interaction.delete_original_response()
+        else:
+            await interaction.message.delete()
 
 
 class SimpleMenu(discord.ui.View):
@@ -105,6 +106,17 @@ class SimpleMenu(discord.ui.View):
         The stop button will remain but is positioned
         under the select menu in this instance.
         Defaults to False.
+
+    Attributes
+    ----------
+    select_menu: `discord.ui.Select`
+        A select menu with a list of pages. The usage of this attribute is discouraged
+        as it may store different instances throughout the menu's lifetime.
+
+        .. deprecated-removed:: 3.5.14 60
+            Any behaviour enabled by the usage of this attribute should no longer be depended on.
+            If you need this for something and cannot replace it with the other functionality,
+            create an issue on Red's issue tracker.
 
     Examples
     --------
@@ -208,7 +220,7 @@ class SimpleMenu(discord.ui.View):
 
     async def on_timeout(self):
         try:
-            if self.delete_after_timeout and not self.message.flags.ephemeral:
+            if self.delete_after_timeout:
                 await self.message.delete()
             elif self.disable_after_timeout:
                 for child in self.children:
@@ -268,6 +280,11 @@ class SimpleMenu(discord.ui.View):
                 Send the message ephemerally. This only works
                 if the context is from a slash command interaction.
         """
+        if self.use_select_menu and self.source.is_paginating():
+            self.remove_item(self.select_menu)
+            # we added a default one in init so we want to remove it and add any changes here
+            self.select_menu = self._get_select_menu()
+            self.add_item(self.select_menu)
         self._fallback_author_to_ctx = True
         if user is not None:
             self.author = user
@@ -284,6 +301,11 @@ class SimpleMenu(discord.ui.View):
             user: `discord.User`
                 The user that will be direct messaged by the bot.
         """
+        if self.use_select_menu and self.source.is_paginating():
+            self.remove_item(self.select_menu)
+            # we added a default one in init so we want to remove it and add any changes here
+            self.select_menu = self._get_select_menu()
+            self.add_item(self.select_menu)
         self.author = user
         kwargs = await self.get_page(self.current_page)
         self.message = await user.send(**kwargs)
